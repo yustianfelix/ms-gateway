@@ -8,6 +8,7 @@ describe('AttendanceController', () => {
   let controller: AttendanceController;
 
   const mockAttendanceService = {
+    getList: jest.fn(),
     recordAction: jest.fn(),
     getSummary: jest.fn(),
   };
@@ -32,6 +33,33 @@ describe('AttendanceController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('getList', () => {
+    it('should forward filters and pagination to attendanceService', async () => {
+      const query = {
+        employee_id: '1',
+        date: '2026-11-18',
+        page: 2,
+        pageSize: 10,
+      };
+      const expectedResponse = {
+        code: '00',
+        message: 'Success',
+        data: {
+          attendances: [],
+          pagination: { page: 2, pageSize: 10, total: 0, totalPages: 0 },
+        },
+      };
+
+      mockAttendanceService.getList.mockResolvedValue(expectedResponse);
+
+      const mockReq = { headers: {} } as unknown as Request;
+      const result = await controller.getList(query, mockReq);
+
+      expect(mockAttendanceService.getList).toHaveBeenCalledWith(query, mockReq.headers);
+      expect(result).toEqual(expectedResponse);
+    });
   });
 
   describe('recordAction', () => {
@@ -82,7 +110,7 @@ describe('AttendanceController', () => {
       mockAttendanceService.getSummary.mockResolvedValue(expectedResponse);
 
       const mockReq = { headers: {} } as unknown as Request;
-      const result = await controller.getSummary(query, {}, mockReq);
+      const result = await controller.getSummary(query, mockReq);
 
       expect(mockAttendanceService.getSummary).toHaveBeenCalledWith(
         { employee_id: '1', start_date: '2026-11-01', end_date: '2026-11-18' },
@@ -93,7 +121,7 @@ describe('AttendanceController', () => {
 
     it('should throw BadRequestException if employee_id is missing', async () => {
       const mockReq = { headers: {} } as unknown as Request;
-      await expect(controller.getSummary({}, {}, mockReq)).rejects.toThrow(
+      await expect(controller.getSummary({}, mockReq)).rejects.toThrow(
         'employee_id is required',
       );
     });

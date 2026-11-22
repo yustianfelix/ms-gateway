@@ -7,6 +7,7 @@ describe('EmployeeController', () => {
   let controller: EmployeeController;
 
   const mockEmployeeService = {
+    getEmployeeList: jest.fn(),
     addEmployee: jest.fn(),
     getProfile: jest.fn(),
     updateProfile: jest.fn(),
@@ -32,6 +33,25 @@ describe('EmployeeController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('getEmployeeList', () => {
+    it('should forward query parameters to employeeService', async () => {
+      const expectedResponse = {
+        success: true,
+        message: 'Employees retrieved successfully',
+        data: [],
+      };
+
+      mockEmployeeService.getEmployeeList.mockResolvedValue(expectedResponse);
+
+      const query = { role: 'employee' };
+      const mockReq = { headers: {} } as unknown as Request;
+      const result = await controller.getEmployeeList(query, mockReq);
+
+      expect(mockEmployeeService.getEmployeeList).toHaveBeenCalledWith(query, mockReq.headers);
+      expect(result).toEqual(expectedResponse);
+    });
   });
 
   describe('addEmployee', () => {

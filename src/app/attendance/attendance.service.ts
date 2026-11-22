@@ -4,6 +4,8 @@ import { AttendanceActionDto } from './dto/attendance-action.dto';
 import { AttendanceActionResponseDto } from './dto/attendance-action-response.dto';
 import { AttendanceSummaryRequestBodyDto } from './dto/attendance-summary-request-body.dto';
 import { AttendanceSummaryResponseDto } from './dto/attendance-summary-response.dto';
+import { AttendanceListQueryDto } from './dto/attendance-list-query.dto';
+import { AttendanceListResponseDto } from './dto/attendance-list-response.dto';
 
 @Injectable()
 export class AttendanceService {
@@ -22,6 +24,27 @@ export class AttendanceService {
       method: 'POST',
       url,
       body: dto,
+      headers: incomingHeaders,
+      serviceName: 'Attendance',
+    });
+  }
+
+  async getList(
+    dto: AttendanceListQueryDto,
+    incomingHeaders?: Record<string, string | string[] | undefined>,
+  ): Promise<AttendanceListResponseDto> {
+    const queryParams = new URLSearchParams();
+    if (dto.employee_id) queryParams.set('employee_id', dto.employee_id);
+    if (dto.date) queryParams.set('date', dto.date);
+    if (dto.page !== undefined) queryParams.set('page', String(dto.page));
+    if (dto.pageSize !== undefined) queryParams.set('pageSize', String(dto.pageSize));
+
+    const queryString = queryParams.toString();
+    const url = `${this.getBaseUrl()}/attendance${queryString ? `?${queryString}` : ''}`;
+
+    return sendUpstreamRequest<AttendanceListResponseDto>({
+      method: 'GET',
+      url,
       headers: incomingHeaders,
       serviceName: 'Attendance',
     });

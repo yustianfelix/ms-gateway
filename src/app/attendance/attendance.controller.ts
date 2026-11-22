@@ -13,10 +13,20 @@ import { AttendanceActionDto } from './dto/attendance-action.dto';
 import { AttendanceActionResponseDto } from './dto/attendance-action-response.dto';
 import { AttendanceSummaryRequestBodyDto } from './dto/attendance-summary-request-body.dto';
 import { AttendanceSummaryResponseDto } from './dto/attendance-summary-response.dto';
+import { AttendanceListQueryDto } from './dto/attendance-list-query.dto';
+import { AttendanceListResponseDto } from './dto/attendance-list-response.dto';
 
 @Controller('attendance')
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
+
+  @Get()
+  async getList(
+    @Query() query: AttendanceListQueryDto,
+    @Req() req: Request,
+  ): Promise<AttendanceListResponseDto> {
+    return this.attendanceService.getList(query, req.headers);
+  }
 
   @Post()
   async recordAction(
