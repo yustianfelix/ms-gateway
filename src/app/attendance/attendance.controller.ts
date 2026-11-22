@@ -29,29 +29,19 @@ export class AttendanceController {
   @Get('summary')
   async getSummary(
     @Query() query: Partial<AttendanceSummaryRequestBodyDto>,
-    @Body() body: Partial<AttendanceSummaryRequestBodyDto>,
     @Req() req: Request,
   ): Promise<AttendanceSummaryResponseDto> {
-    const employeeId = query.employee_id || body.employee_id;
+    const employeeId = query.employee_id ;
     if (!employeeId) {
       throw new BadRequestException('employee_id is required');
     }
 
     const summaryDto: AttendanceSummaryRequestBodyDto = {
       employee_id: employeeId,
-      start_date: query.start_date || body.start_date,
-      end_date: query.end_date || body.end_date,
+      start_date: query.start_date,
+      end_date: query.end_date,
     };
 
     return this.attendanceService.getSummary(summaryDto, req.headers);
-  }
-
-  // Frontend helper endpoint: allows calling POST /attendance/summary if client environment blocks GET with body
-  @Post('summary')
-  async postSummary(
-    @Body() body: AttendanceSummaryRequestBodyDto,
-    @Req() req: Request,
-  ): Promise<AttendanceSummaryResponseDto> {
-    return this.attendanceService.getSummary(body, req.headers);
   }
 }
